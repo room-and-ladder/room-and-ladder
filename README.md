@@ -1,7 +1,5 @@
 # Room&Ladder
 
----
-
 ## What's Room&Ladder?
 
 The focus of Room&Ladder is to help landlords manage a property with multiple and separate tenants. For example, landlords who rent out individual bedrooms within their home.
