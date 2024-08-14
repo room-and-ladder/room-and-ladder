@@ -1,24 +1,41 @@
-# README
+# Room&Ladder
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+---
 
-Things you may want to cover:
+## What's Room&Ladder?
 
-* Ruby version
+The focus of Room&Ladder is to help landlords manage a property with multiple and separate tenants. For example, landlords who rent out individual bedrooms within their home.
 
-* System dependencies
+## Features
+Upcoming Feature List:
+* Assign and manage chores, parking assignments, door access codes
+* Meeting announcements & recaps
+* Split the share of utilities amongst tenants
+* Upload utilities bills
+* Generate and email rent receipts
+* Record rent payments to track history
+* Allow tenants to make requests for repairs, reservations, etc.
+* Allow tenant to suggest opportunity for improvement
+* Track house supplies
+* Track one-off or recurring discounts and additional charges
+* Create "How to" tutorials for house specific duties and responsibility.
 
-* Configuration
+This application **does not** handle:
+* Tenant screening
+* Payment processing
+* Background checks
+* Lease signing/creation
 
-* Database creation
+## Getting Started
 
-* Database initialization
+## System dependencies
 
-* How to run the test suite
+## Configuration
 
-* Services (job queues, cache servers, search engines, etc.)
+## Run the test suite
 
-* Deployment instructions
+## Services (job queues, cache servers, search engines, etc.)
 
-* ...
+## Database
+
+## Deployment
