@@ -1,0 +1,2 @@
+class HouseTenant < User
+end

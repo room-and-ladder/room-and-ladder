@@ -1,0 +1,2 @@
+class Townhome < Rental
+end

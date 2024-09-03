@@ -1,0 +1,2 @@
+class HouseManager < User
+end

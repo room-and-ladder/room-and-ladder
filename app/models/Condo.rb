@@ -1,0 +1,2 @@
+class Condo < Rental
+end

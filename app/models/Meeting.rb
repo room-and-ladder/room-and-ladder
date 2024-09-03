@@ -1,0 +1,2 @@
+class Meeting < PropertyEvent
+end
