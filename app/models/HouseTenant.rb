@@ -1,2 +1,0 @@
-class HouseTenant < User
-end

@@ -1,2 +1,0 @@
-class Bedroom < Rental
-end

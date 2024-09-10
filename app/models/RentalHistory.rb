@@ -1,23 +1,24 @@
 # == Schema Information
 #
-# Table name: chores
+# Table name: rental_histories
 #
 #  id                   :bigint           not null, primary key
-#  description          :text
-#  frequency            :interval
-#  title                :string
+#  available            :boolean
+#  date_of_change       :datetime
+#  parking_assignment   :string
+#  rent_rate            :integer          not null
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  user_group_rental_id :bigint           not null
 #
 # Indexes
 #
-#  index_chores_on_user_group_rental_id  (user_group_rental_id)
+#  index_rental_histories_on_user_group_rental_id  (user_group_rental_id)
 #
 # Foreign Keys
 #
 #  fk_rails_...  (user_group_rental_id => user_group_rentals.id)
 #
-class Chore < ApplicationRecord
+class RentalHistory < ApplicationRecord
   belongs_to :user_group_rental
 end
