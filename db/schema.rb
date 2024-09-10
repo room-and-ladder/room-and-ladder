@@ -17,9 +17,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
   create_enum "payment_statuses", ["prompt", "early", "late", "overdue", "upcoming", "waived"]
+  create_enum "property_event_kinds", ["meeting", "party"]
   create_enum "property_kind", ["single_family", "condo", "co_op", "townhome", "multi_family"]
   create_enum "redistribution_strategies", ["management", "roommates"]
+  create_enum "rental_kinds", ["apartment", "bedroom", "condo", "house", "townhome", "multi_family"]
+  create_enum "request_kinds", ["repair", "reservation", "action"]
   create_enum "responses", ["no", "yes", "maybe", "awaiting"]
+  create_enum "user_kinds", ["tenant", "manager", "owner"]
   create_enum "utility_kind", ["gas", "electric", "water", "internet", "trash"]
 
   create_table "chores", force: :cascade do |t|
@@ -65,8 +69,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
   create_table "management_group_users", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "management_group_id", null: false
-    t.boolean "admin", default: false
-    t.boolean "active"
+    t.boolean "admin", default: false, null: false
+    t.boolean "active", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["admin", "management_group_id"], name: "management_group_users_single_admin_idx", unique: true, where: "(admin IS TRUE)"
@@ -98,10 +102,10 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
   end
 
   create_table "property_events", force: :cascade do |t|
-    t.string "type"
     t.boolean "mandatory", default: false, null: false
     t.bigint "user_group_rental_id", null: false
     t.boolean "property_wide"
+    t.enum "kind", default: "meeting", null: false, enum_type: "property_event_kinds"
     t.text "description"
     t.datetime "event_date"
     t.string "location"
@@ -115,7 +119,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
     t.integer "starting_quantity"
     t.integer "current_quantity"
     t.integer "total_cost"
-    t.integer "length"
+    t.integer "total_length"
+    t.integer "total_width"
     t.datetime "year"
     t.date "expiration_date"
     t.string "color"
@@ -126,10 +131,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
   end
 
   create_table "property_resources", force: :cascade do |t|
+    t.bigint "real_property_id", null: false
     t.string "name"
-    t.boolean "open", default: false, null: false
+    t.boolean "available", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["real_property_id"], name: "index_property_resources_on_real_property_id"
   end
 
   create_table "real_properties", force: :cascade do |t|
@@ -144,20 +151,20 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
 
   create_table "rent_exemptions", force: :cascade do |t|
     t.bigint "user_group_rental_id", null: false
-    t.bigint "user_id", null: false
+    t.bigint "management_group_user_id", null: false
     t.integer "exemption_percentage", default: 100, null: false
     t.datetime "exemption_expiration"
     t.enum "redistribution_strategy", default: "management", null: false, enum_type: "redistribution_strategies"
     t.text "reason"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["management_group_user_id"], name: "index_rent_exemptions_on_management_group_user_id"
     t.index ["user_group_rental_id"], name: "index_rent_exemptions_on_user_group_rental_id"
-    t.index ["user_id"], name: "index_rent_exemptions_on_user_id"
   end
 
   create_table "rental_histories", force: :cascade do |t|
-    t.integer "rent_rate", null: false
     t.bigint "user_group_rental_id", null: false
+    t.integer "rent_rate", null: false
     t.string "parking_assignment"
     t.boolean "available"
     t.datetime "date_of_change"
@@ -169,13 +176,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
   create_table "rentals", force: :cascade do |t|
     t.bigint "four_wall_id", null: false
     t.integer "rent_rate", default: 0, null: false
-    t.boolean "available", default: false
+    t.boolean "available", default: false, null: false
     t.string "address", null: false
     t.string "parking_assignment"
     t.string "primary_door_access_code"
     t.string "secondary_door_access_code"
     t.string "name", null: false
-    t.string "type"
+    t.enum "kind", null: false, enum_type: "rental_kinds"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["four_wall_id"], name: "index_rentals_on_four_wall_id"
@@ -183,20 +190,20 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
 
   create_table "request_decisions", force: :cascade do |t|
     t.bigint "request_id", null: false
+    t.bigint "management_group_user_id", null: false
     t.boolean "granted"
     t.text "explanation"
-    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["management_group_user_id"], name: "index_request_decisions_on_management_group_user_id"
     t.index ["request_id"], name: "index_request_decisions_on_request_id"
-    t.index ["user_id"], name: "index_request_decisions_on_user_id"
   end
 
   create_table "requests", force: :cascade do |t|
     t.bigint "user_group_rental_id", null: false
     t.string "title"
     t.text "description"
-    t.string "type"
+    t.enum "kind", default: "repair", null: false, enum_type: "request_kinds"
     t.datetime "appointment_date"
     t.interval "duration"
     t.datetime "created_at", null: false
@@ -208,7 +215,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
     t.bigint "user_group_id", null: false
     t.bigint "rental_id", null: false
     t.daterange "occupancy_range"
-    t.boolean "active"
+    t.boolean "active", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["rental_id"], name: "index_user_group_rentals_on_rental_id"
@@ -228,7 +235,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
     t.string "name", null: false
     t.string "phone_number"
     t.string "email", null: false
-    t.string "type"
+    t.enum "kind", default: "tenant", null: false, enum_type: "user_kinds"
     t.bigint "user_group_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -238,22 +245,22 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
   create_table "utility_exemptions", force: :cascade do |t|
     t.bigint "utility_item_id", null: false
     t.bigint "user_group_rental_id", null: false
-    t.bigint "user_id", null: false
+    t.bigint "management_group_user_id", null: false
     t.integer "exemption_percentage", default: 100, null: false
     t.datetime "exemption_expiration"
     t.text "reason"
     t.enum "redistribution_strategy", default: "management", null: false, enum_type: "redistribution_strategies"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["management_group_user_id"], name: "index_utility_exemptions_on_management_group_user_id"
     t.index ["user_group_rental_id"], name: "index_utility_exemptions_on_user_group_rental_id"
-    t.index ["user_id"], name: "index_utility_exemptions_on_user_id"
     t.index ["utility_item_id"], name: "index_utility_exemptions_on_utility_item_id"
   end
 
   create_table "utility_groups", force: :cascade do |t|
     t.bigint "four_wall_id", null: false
     t.datetime "date"
-    t.boolean "property_wide"
+    t.boolean "property_wide", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["four_wall_id"], name: "index_utility_groups_on_four_wall_id"
@@ -263,7 +270,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
     t.bigint "utility_group_id", null: false
     t.enum "kind", null: false, enum_type: "utility_kind"
     t.integer "total"
-    t.boolean "deffered"
+    t.boolean "deffered", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["kind", "utility_group_id"], name: "index_utility_items_on_kind_and_utility_group_id", unique: true
@@ -294,20 +301,21 @@ ActiveRecord::Schema[7.2].define(version: 2024_08_14_013048) do
   add_foreign_key "payment_transactions", "user_group_rentals"
   add_foreign_key "property_events", "user_group_rentals"
   add_foreign_key "property_resource_items", "property_resources"
+  add_foreign_key "property_resources", "real_properties"
   add_foreign_key "real_properties", "management_groups"
+  add_foreign_key "rent_exemptions", "management_group_users"
   add_foreign_key "rent_exemptions", "user_group_rentals"
-  add_foreign_key "rent_exemptions", "users"
   add_foreign_key "rental_histories", "user_group_rentals"
   add_foreign_key "rentals", "four_walls"
+  add_foreign_key "request_decisions", "management_group_users"
   add_foreign_key "request_decisions", "requests"
-  add_foreign_key "request_decisions", "users"
   add_foreign_key "requests", "user_group_rentals"
   add_foreign_key "user_group_rentals", "rentals"
   add_foreign_key "user_group_rentals", "user_groups"
   add_foreign_key "user_groups", "management_groups"
   add_foreign_key "users", "user_groups"
+  add_foreign_key "utility_exemptions", "management_group_users"
   add_foreign_key "utility_exemptions", "user_group_rentals"
-  add_foreign_key "utility_exemptions", "users"
   add_foreign_key "utility_exemptions", "utility_items"
   add_foreign_key "utility_groups", "four_walls"
   add_foreign_key "utility_items", "utility_groups"

@@ -13,14 +13,19 @@ class InitSchema < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
+    create_enum :user_kinds,
+      [ :tenant, :manager, :owner ]
+
     create_table :users do |t|
       t.string :display_name
       t.string :name, null: false
       t.string :phone_number
       t.string :email, null: false
-      t.string :type
+      t.enum :kind,
+             enum_type: :user_kinds,
+             default: :tenant,
+             null: false
       t.references :user_group, null: false, foreign_key: true
-
 
       t.timestamps
     end
@@ -28,8 +33,8 @@ class InitSchema < ActiveRecord::Migration[7.2]
     create_table :management_group_users do |t|
       t.references :user, null: false, foreign_key: true
       t.references :management_group, null: false, foreign_key: true
-      t.boolean :admin, default: false
-      t.boolean :active
+      t.boolean :admin, default: false, null: false
+      t.boolean :active, default: true, null: false
 
       t.timestamps
     end
@@ -45,7 +50,6 @@ class InitSchema < ActiveRecord::Migration[7.2]
 
     create_table :real_properties do |t|
       t.references :management_group, null: false, foreign_key: true
-
       t.string :address, null: false
       t.string :name
       t.enum :kind,
@@ -60,17 +64,21 @@ class InitSchema < ActiveRecord::Migration[7.2]
       t.string :name, null: false
     end
 
+    create_enum :rental_kinds,
+      [ :apartment, :bedroom, :condo, :house, :townhome, :multi_family ]
+
     create_table :rentals do |t|
       t.references :four_wall, null: false, foreign_key: true
-
       t.integer :rent_rate, null: false, default: 0
-      t.boolean :available, default: false
+      t.boolean :available, default: false, null: false
       t.string :address, null: false
       t.string :parking_assignment
       t.string :primary_door_access_code
       t.string :secondary_door_access_code
       t.string :name, null: false
-      t.string :type
+      t.enum :kind,
+             enum_type: :rental_kinds,
+             null: false
 
       t.timestamps
     end
@@ -79,7 +87,7 @@ class InitSchema < ActiveRecord::Migration[7.2]
       t.references :user_group, null: false, foreign_key: true
       t.references :rental, null: false, foreign_key: true
       t.daterange :occupancy_range
-      t.boolean :active
+      t.boolean :active, null: false,  default: false
 
       t.timestamps
     end
@@ -90,7 +98,6 @@ class InitSchema < ActiveRecord::Migration[7.2]
 
     create_table :payment_transactions do |t|
       t.references :user_group_rental, null: false, foreign_key: true
-
       t.interval :occupancy_duration
       t.enum(:rent_payment_status,
               enum_type: :payment_statuses,
@@ -115,7 +122,7 @@ class InitSchema < ActiveRecord::Migration[7.2]
     create_table :utility_groups do |t|
       t.references :four_wall, null: false, foreign_key: true
       t.datetime :date
-      t.boolean :property_wide
+      t.boolean :property_wide, default: false, null: false
 
       t.timestamps
     end
@@ -123,7 +130,6 @@ class InitSchema < ActiveRecord::Migration[7.2]
     create_table :utility_splits do |t|
       t.references :utility_group, null: false, foreign_key: true
       t.references :user_group_rental, null: false, foreign_key: true
-
       t.integer :split_rate
       t.interval :occupancy_duration
       t.integer :split_points
@@ -136,7 +142,7 @@ class InitSchema < ActiveRecord::Migration[7.2]
 
     create_table :rent_exemptions do |t|
       t.references :user_group_rental, null: false, foreign_key: true
-      t.references :user, null: false, foreign_key: true # authorizer
+      t.references :management_group_user, null: false, foreign_key: true
       t.integer :exemption_percentage, default: 100, null: false
       t.datetime :exemption_expiration
       t.enum(:redistribution_strategy,
@@ -158,7 +164,7 @@ class InitSchema < ActiveRecord::Migration[7.2]
         enum_type: :utility_kind,
         null: false
       t.integer :total
-      t.boolean :deffered
+      t.boolean :deffered, default: false, null: false
 
       t.timestamps
     end
@@ -170,7 +176,7 @@ class InitSchema < ActiveRecord::Migration[7.2]
     create_table :utility_exemptions do |t|
       t.references :utility_item, null: false, foreign_key: true
       t.references :user_group_rental, null: false, foreign_key: true
-      t.references :user, null: false, foreign_key: true # authorizer
+      t.references :management_group_user, null: false, foreign_key: true
 
       t.integer :exemption_percentage, default: 100, null: false
       t.datetime :exemption_expiration
@@ -183,12 +189,16 @@ class InitSchema < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
+    create_enum :property_event_kinds, [ :meeting, :party ]
+
     create_table :property_events do |t|
-      t.string :type
       t.boolean :mandatory, default: false, null: false
       t.references :user_group_rental, null: false, foreign_key: true # host
       t.boolean :property_wide
-
+      t.enum :kind,
+             enum_type: :property_event_kinds,
+             default: :meeting,
+             null: false
       t.text :description
       t.datetime :event_date
       t.string :location
@@ -220,19 +230,20 @@ class InitSchema < ActiveRecord::Migration[7.2]
     end
 
     create_table :property_resources do |t|
+      t.references :real_property, null: false, foreign_key: true
       t.string :name
-      t.boolean :open, default: false, null: false
+      t.boolean :available, default: false, null: false
 
       t.timestamps
     end
 
     create_table :property_resource_items do |t|
       t.references :property_resource, null: false, foreign_key: true
-
       t.integer :starting_quantity
       t.integer :current_quantity
       t.integer :total_cost
-      t.integer :length
+      t.integer :total_length
+      t.integer :total_width
       t.datetime :year
       t.date :expiration_date
       t.string :color
@@ -252,7 +263,6 @@ class InitSchema < ActiveRecord::Migration[7.2]
 
     create_table :grievances do |t|
       t.references :user_group_rental, null: false, foreign_key: true # author
-
       t.boolean :anonymous, default: true, null: false
       t.string :title
       t.text :description
@@ -260,11 +270,16 @@ class InitSchema < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
+    create_enum :request_kinds, [ :repair, :reservation, :action ]
+
     create_table :requests do |t|
-      t.references :user_group_rental, null: false, foreign_key: true # author
+      t.references :user_group_rental, null: false, foreign_key: true
       t.string :title
       t.text :description
-      t.string :type
+      t.enum :kind,
+             enum_type: :request_kinds,
+             default: :repair,
+             null: false
       t.datetime :appointment_date
       t.interval :duration
 
@@ -273,18 +288,16 @@ class InitSchema < ActiveRecord::Migration[7.2]
 
     create_table :request_decisions do |t|
       t.references :request, null: false, foreign_key: true
-
+      t.references :management_group_user, foreign_key: true, null: false
       t.boolean :granted
       t.text :explanation
-      t.references :user, foreign_key: true, null: false # decider
 
       t.timestamps
     end
 
     create_table :rental_histories do |t|
-      t.integer :rent_rate, null: false
       t.references :user_group_rental, null: false, foreign_key: true
-
+      t.integer :rent_rate, null: false
       t.string :parking_assignment
       t.boolean :available
       t.datetime :date_of_change
