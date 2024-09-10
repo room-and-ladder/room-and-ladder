@@ -1,0 +1,32 @@
+# == Schema Information
+#
+# Table name: real_properties
+#
+#  id                  :bigint           not null, primary key
+#  address             :string           not null
+#  kind                :enum             not null
+#  name                :string
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  management_group_id :bigint           not null
+#
+# Indexes
+#
+#  index_real_properties_on_management_group_id  (management_group_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (management_group_id => management_groups.id)
+#
+
+one:
+  management_group: one
+  address: MyString
+  name: MyString
+  kind: :condo
+
+two:
+  management_group: two 
+  address: MyString
+  name: MyString
+  kind: :single_family

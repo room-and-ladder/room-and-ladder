@@ -41,6 +41,12 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+ # Generate random data
+  gem 'faker'
+
+  # Annotate model with schema info
+  gem 'annotate'
 end
 
 group :development do

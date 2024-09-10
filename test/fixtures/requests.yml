@@ -1,0 +1,38 @@
+# == Schema Information
+#
+# Table name: requests
+#
+#  id                   :bigint           not null, primary key
+#  appointment_date     :datetime
+#  description          :text
+#  duration             :interval
+#  kind                 :enum             default("repair"), not null
+#  title                :string
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  user_group_rental_id :bigint           not null
+#
+# Indexes
+#
+#  index_requests_on_user_group_rental_id  (user_group_rental_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_group_rental_id => user_group_rentals.id)
+#
+
+one:
+  user_group_rental: one
+  title: MyString
+  description: MyText
+  kind: "repair"
+  appointment_date: 2024-09-01 19:38:43
+  duration: 
+
+two:
+  user_group_rental: two
+  title: MyString
+  description: MyText
+  kind: "repair"
+  appointment_date: 2024-09-01 19:38:43
+  duration: 

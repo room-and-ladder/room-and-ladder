@@ -1,0 +1,55 @@
+# == Schema Information
+#
+# Table name: users
+#
+#  id            :bigint           not null, primary key
+#  display_name  :string
+#  email         :string           not null
+#  kind          :enum             default("tenant"), not null
+#  name          :string           not null
+#  phone_number  :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  user_group_id :bigint           not null
+#
+# Indexes
+#
+#  index_users_on_user_group_id  (user_group_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_group_id => user_groups.id)
+#
+
+one:
+  display_name: MyString
+  name: MyString
+  phone_number: MyString
+  email: MyString
+  kind: :tenant
+  user_group: one 
+
+two:
+  display_name: MyString
+  name: MyString
+  phone_number: MyString
+  email: MyString
+  kind: :tenant
+  user_group: two 
+
+three:
+  display_name: MyString
+  name: MyString
+  phone_number: MyString
+  email: MyString
+  kind: :manager
+  user_group: one
+
+four:
+  display_name: MyString
+  name: MyString
+  phone_number: MyString
+  email: MyString
+  kind: :owner
+  user_group: two
+

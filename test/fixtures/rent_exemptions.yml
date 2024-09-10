@@ -1,0 +1,40 @@
+# == Schema Information
+#
+# Table name: rent_exemptions
+#
+#  id                       :bigint           not null, primary key
+#  exemption_expiration     :datetime
+#  exemption_percentage     :integer          default(100), not null
+#  reason                   :text
+#  redistribution_strategy  :enum             default("management"), not null
+#  created_at               :datetime         not null
+#  updated_at               :datetime         not null
+#  management_group_user_id :bigint           not null
+#  user_group_rental_id     :bigint           not null
+#
+# Indexes
+#
+#  index_rent_exemptions_on_management_group_user_id  (management_group_user_id)
+#  index_rent_exemptions_on_user_group_rental_id      (user_group_rental_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (management_group_user_id => management_group_users.id)
+#  fk_rails_...  (user_group_rental_id => user_group_rentals.id)
+#
+
+one:
+  user_group_rental: one
+  management_group_user: one
+  exemption_percentage: 1
+  exemption_expiration: 2024-09-01 09:24:20
+  redistribution_strategy: :management
+  reason: MyText
+
+two:
+  user_group_rental: two 
+  management_group_user: two 
+  exemption_percentage: 1
+  exemption_expiration: 2024-09-01 09:24:20
+  redistribution_strategy: :roommates
+  reason: MyText

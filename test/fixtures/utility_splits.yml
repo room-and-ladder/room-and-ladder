@@ -1,0 +1,40 @@
+# == Schema Information
+#
+# Table name: utility_splits
+#
+#  id                   :bigint           not null, primary key
+#  occupancy_duration   :interval
+#  split_charge         :integer
+#  split_points         :integer
+#  split_rate           :integer
+#  created_at           :datetime         not null
+#  updated_at           :datetime         not null
+#  user_group_rental_id :bigint           not null
+#  utility_group_id     :bigint           not null
+#
+# Indexes
+#
+#  index_utility_splits_on_user_group_rental_id  (user_group_rental_id)
+#  index_utility_splits_on_utility_group_id      (utility_group_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (user_group_rental_id => user_group_rentals.id)
+#  fk_rails_...  (utility_group_id => utility_groups.id)
+#
+
+one:
+  utility_group: one
+  user_group_rental: one
+  split_rate: 1
+  occupancy_duration:
+  split_points: 1
+  split_charge: 1
+
+two:
+  utility_group: two
+  user_group_rental: two
+  split_rate: 1
+  occupancy_duration:
+  split_points: 1
+  split_charge: 1

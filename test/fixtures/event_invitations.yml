@@ -1,0 +1,42 @@
+# == Schema Information
+#
+# Table name: event_invitations
+#
+#  id                :bigint           not null, primary key
+#  description       :text
+#  invite_response   :enum             default("maybe"), not null
+#  title             :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  invitee_id        :bigint           not null
+#  inviter_id        :bigint           not null
+#  property_event_id :bigint           not null
+#
+# Indexes
+#
+#  index_event_invitations_on_invitee_id         (invitee_id)
+#  index_event_invitations_on_inviter_id         (inviter_id)
+#  index_event_invitations_on_property_event_id  (property_event_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (invitee_id => users.id)
+#  fk_rails_...  (inviter_id => users.id)
+#  fk_rails_...  (property_event_id => property_events.id)
+#
+
+one:
+  invitee: one 
+  inviter: two
+  property_event: one 
+  title: MyString
+  description: MyText
+  invite_response: "yes"
+
+two:
+  invitee: three
+  inviter: four
+  property_event: two
+  title: MyString
+  description: MyText
+  invite_response: "no"
